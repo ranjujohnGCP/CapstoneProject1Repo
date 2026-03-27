@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: flask-container # Name of the container in the pod
-        image: asia-south1-docker.pkg.dev/citric-kit-489316-g6/ranjuartifactrepo/capstoneproject1 # Docker image to use for the container, pulled from Google Container Registry (GCR)
+        image: asia-south1-docker.pkg.dev/citric-kit-489316-g6/ranjuartifactrepo/capstoneproject1:latest # Docker image to use for the container, pulled from Google Container Registry (GCR)
         imagePullPolicy: Always  # Always pull the latest image from the registry when creating or updating pods
         ports:                    # Port configuration for the container, exposing port 8080
         - containerPort: 8080    # Port on which the Flask application will listen inside the container
