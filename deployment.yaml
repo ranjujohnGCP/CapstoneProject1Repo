@@ -1,0 +1,40 @@
+# This deployment.yaml file defines a Kubernetes Deployment and a Service for a Flask application.
+# The Deployment specifies that there should be 2 replicas of the Flask application running, and it uses the latest image from the specified Google Container Registry (GCR) repository. The Service is of type LoadBalancer, which allows external access to the application on port 80, forwarding traffic to port 8080 on the containers. This configuration is used to deploy the Flask application to a GKE cluster using Cloud Build.
+#
+ 
+apiVersion: apps/v1  # Specifies the API version for the Deployment resource
+kind: Deployment     # Specifies that this resource is a Deployment
+metadata:            # Metadata for the Deployment, including its name
+  name: capstoneproject1-deployment  # Name of the Kubernetes deployment
+spec:
+  replicas: 1          # Number of replicas (pods) to run for the Flask application
+  selector:             # Selector to identify the pods that belong to this deployment, using labels
+    matchLabels:
+      app: capstoneproject1-app   # Label to match the pods that belong to this deployment
+  template:             # Template for the pods that will be created by this deployment
+    metadata:
+      labels:
+        app: capstoneproject1-app   # Label for the pods created by this deployment
+    spec:
+      containers:
+      - name: flask-container # Name of the container in the pod
+        image: asia-south1-docker.pkg.dev/citric-kit-489316-g6/ranjuartifactrepo/capstoneproject1 # Docker image to use for the container, pulled from Google Container Registry (GCR)
+        imagePullPolicy: Always  # Always pull the latest image from the registry when creating or updating pods
+        ports:                    # Port configuration for the container, exposing port 8080
+        - containerPort: 8080    # Port on which the Flask application will listen inside the container
+ 
+---
+# The following Service resource defines a LoadBalancer service that exposes the Flask application to external traffic. It listens on port 80 and forwards traffic to port 8080 on the pods that match the selector (app: flask-app).
+apiVersion: v1
+kind: Service
+metadata:
+  name: capstoneproject1-service
+spec:
+  type: LoadBalancer  # Specifies that this service should be exposed externally using a cloud provider's load balancer
+  selector:
+    app: capstoneproject1-app
+  ports:
+    - port: 80         # Port on which the service will be exposed externally
+      targetPort: 8080 # Port on the pods to which the service will forward traffic (the port on which the Flask application is running)
+ 
+ 
