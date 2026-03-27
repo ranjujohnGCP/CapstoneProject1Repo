@@ -14,5 +14,6 @@ RUN pip install -r requirements.txt
 COPY app.py .
 
 # CMD ensures that Flask runs on port 8080
+EXPOSE 5000
 
 CMD ["python","app.py"]
