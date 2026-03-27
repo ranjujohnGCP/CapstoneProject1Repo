@@ -1,7 +1,20 @@
+wsl --install
+Start-Process 'Docker Desktop Installer.exe' -Wait install
+
 
 gcloud auth login
 gcloud config set project citric-kit-489316-g6
 gcloud auth configure-docker asia-south1-docker.pkg.dev
 gcloud container clusters get-credentials ranjucp1cluster --zone us-central1-a	
  --project citric-kit-489316-g6
+
+docker tag capstoneproject1:latest asia-south1-docker.pkg.dev/citric-kit-489316-g6/ranjuartifactrepo/capstoneproject1:latest
+docker push asia-south1-docker.pkg.dev/citric-kit-489316-g6/ranjuartifactrepo/capstoneproject1:latest
+
+gcloud projects add-iam-policy-binding citric-kit-489316-g6 \
+  --member="serviceAccount:911808109289-compute@developer.gserviceaccount.com" \
+  --role="roles/artifactregistry.reader"
+
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
 
