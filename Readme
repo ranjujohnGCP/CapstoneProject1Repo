@@ -1,1 +1,7 @@
-Readme File
+
+gcloud auth login
+gcloud config set project citric-kit-489316-g6
+gcloud auth configure-docker asia-south1-docker.pkg.dev
+gcloud container clusters get-credentials ranjucp1cluster --zone us-central1-a	
+ --project citric-kit-489316-g6
+
