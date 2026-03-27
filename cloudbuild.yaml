@@ -1,0 +1,80 @@
+# ================================
+# Cloud Build Options
+# ================================
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+logsBucket: gs://ranju-build-logs-bucket
+
+# ================================
+# Substitutions
+# ================================
+substitutions:
+  _IMAGE: asia-south1-docker.pkg.dev/citric-kit-489316-g6/ranjuartifactrepo/flask-demo
+
+# ================================
+# Steps
+# ================================
+steps:
+
+# Step 1: Build Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Build Image'
+  args:
+    - build
+    - '-t'
+    - '${_IMAGE}:$SHORT_SHA'
+    - '-t'
+    - '${_IMAGE}:latest'
+    - '.'
+
+# Step 2: Push Docker image to Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Push Image'
+  args:
+    - push
+    - '--all-tags'
+    - '${_IMAGE}'
+
+# Step 3: Update GKE deployment with the new image
+- name: 'gcr.io/cloud-builders/kubectl'
+  id: 'Deploy to GKE'
+  args:
+    - set
+    - image
+    - deployment/flask-deployment
+    - flask-container=${_IMAGE}:$SHORT_SHA
+  env:
+    - 'CLOUDSDK_COMPUTE_REGION=asia-south1'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=ranjucicdcluster-1'
+
+# Step 4: Verify rollout
+- name: 'gcr.io/cloud-builders/kubectl'
+  id: 'Verify Rollout'
+  args:
+    - rollout
+    - status
+    - deployment/flask-deployment
+  env:
+    - 'CLOUDSDK_COMPUTE_REGION=asia-south1'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=ranjucicdcluster-1'
+
+# Step 5: Auto Rollback if deployment fails
+- name: 'gcr.io/cloud-builders/kubectl'
+  id: 'Rollback on Failure'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      kubectl rollout status deployment/flask-deployment || \
+      kubectl rollout undo deployment/flask-deployment
+  env:
+    - 'CLOUDSDK_COMPUTE_REGION=asia-south1'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=ranjucicdcluster-1'
+
+# ================================
+# Store Images
+# ================================
+images:
+  - '${_IMAGE}:$SHORT_SHA'
+  - '${_IMAGE}:latest'
