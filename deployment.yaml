@@ -6,6 +6,7 @@ apiVersion: apps/v1  # Specifies the API version for the Deployment resource
 kind: Deployment     # Specifies that this resource is a Deployment
 metadata:            # Metadata for the Deployment, including its name
   name: capstoneproject1-deployment  # Name of the Kubernetes deployment
+  namespace: cp1
 spec:
   replicas: 1          # Number of replicas (pods) to run for the Flask application
   selector:             # Selector to identify the pods that belong to this deployment, using labels
@@ -29,6 +30,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: capstoneproject1-service
+  namespace: cp1
 spec:
   type: LoadBalancer  # Specifies that this service should be exposed externally using a cloud provider's load balancer
   selector:
